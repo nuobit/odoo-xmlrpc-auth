@@ -17,6 +17,7 @@ import argparse
 import configparser
 import json
 import os
+import stat
 import sys
 import xmlrpc.client
 
@@ -24,12 +25,30 @@ SECTION = "odoo"
 REQUIRED_KEYS = ("url", "db", "user", "password")
 
 
+def check_permissions(path, fd=None):
+    """Refuse to run if path is accessible by group or others."""
+    mode = (os.fstat(fd) if fd is not None else os.stat(path)).st_mode
+    if mode & (stat.S_IRWXG | stat.S_IRWXO):
+        print(
+            f"Error: {path} is accessible by others. "
+            f"Fix with: chmod {'700' if stat.S_ISDIR(mode) else '600'} {path}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+
 def read_config(profile):
     """Read credentials from ~/.config/odoo-xmlrpc-auth/<profile>.conf."""
-    config_path = os.path.expanduser(f"~/.config/odoo-xmlrpc-auth/{profile}.conf")
+    config_dir = os.path.expanduser("~/.config/odoo-xmlrpc-auth")
+    config_path = os.path.join(config_dir, f"{profile}.conf")
+
+    if os.path.isdir(config_dir):
+        check_permissions(config_dir)
+
     parser = configparser.ConfigParser()
     try:
         with open(config_path, encoding="utf-8") as f:
+            check_permissions(config_path, fd=f.fileno())
             parser.read_file(f)
     except FileNotFoundError:
         print(f"Error: config file not found: {config_path}", file=sys.stderr)

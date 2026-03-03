@@ -51,6 +51,12 @@ odoo-xmlrpc-auth --profile customer1 \
 
 This copies `odoo-xmlrpc-auth` to `~/.local/bin/` (make sure it's in your PATH).
 
+To update (downloads latest from GitHub):
+
+```bash
+./update.sh
+```
+
 To uninstall:
 
 ```bash
