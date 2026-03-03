@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "odoo-xmlrpc-auth"
+dynamic = ["version"]
+description = "Minimal CLI proxy and library for Odoo XML-RPC calls — injects credentials transparently"
+requires-python = ">=3.8"
+license = "MIT"
+readme = "README.md"
+
+[project.scripts]
+odoo-xmlrpc-auth = "odoo_xmlrpc_auth.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "odoo_xmlrpc_auth.__version__"}

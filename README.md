@@ -1,9 +1,27 @@
 # odoo-xmlrpc-auth
 
-A minimal CLI proxy for Odoo XML-RPC calls. Its only job is to **inject
-credentials** so they never appear in command history or scripts.
+A minimal CLI proxy and Python library for Odoo XML-RPC calls. Its only job
+is to **inject credentials** so they never appear in command history or scripts.
 
-## How it works
+## Install
+
+```bash
+pip install git+https://github.com/NuoBiT/odoo-xmlrpc-auth.git
+```
+
+Update:
+
+```bash
+pip install --upgrade git+https://github.com/NuoBiT/odoo-xmlrpc-auth.git
+```
+
+Uninstall:
+
+```bash
+pip uninstall odoo-xmlrpc-auth
+```
+
+## CLI usage
 
 ```
 odoo-xmlrpc-auth --profile <name> '<json>'
@@ -19,9 +37,7 @@ The JSON payload mirrors Odoo's `execute_kw` directly:
 {"model": "...", "method": "...", "args": [...], "kwargs": {...}}
 ```
 
-The tool just adds `db`, `uid`, and `password` transparently.
-
-## Examples
+### Examples
 
 ```bash
 # Create a task
@@ -32,38 +48,47 @@ odoo-xmlrpc-auth --profile customer1 \
 odoo-xmlrpc-auth --profile customer1 \
   '{"model":"project.task","method":"search_read","args":[[["project_id","=",5]]],"kwargs":{"fields":["name","stage_id"],"limit":10}}'
 
-# Create an attachment
-odoo-xmlrpc-auth --profile customer1 \
-  '{"model":"ir.attachment","method":"create","args":[{"name":"screenshot.png","type":"binary","datas":"...","res_model":"project.task","res_id":123}]}'
-
 # Read a record
 odoo-xmlrpc-auth --profile customer1 \
   '{"model":"res.partner","method":"read","args":[[1]]}'
 ```
 
-## Setup
+## Library usage
 
-### 1. Install
+Drop-in replacement for `xmlrpc.client.ServerProxy`. Just change the import
+and add `profile=`:
 
-```bash
-./install.sh
+```python
+from odoo_xmlrpc_auth.client import ServerProxy
+
+proxy = ServerProxy(profile="customer1")
+
+# Same as xmlrpc.client, but db/uid/password are injected automatically
+tasks = proxy.execute_kw("project.task", "search_read",
+                         [[["project_id", "=", 5]]],
+                         {"fields": ["name", "stage_id"], "limit": 10})
+
+task_id = proxy.execute_kw("project.task", "create",
+                           [{"name": "Bug: login broken", "project_id": 42}])
+
+proxy.execute_kw("project.task", "write",
+                 [[task_id], {"name": "Fixed"}])
 ```
 
-This copies `odoo-xmlrpc-auth` to `~/.local/bin/` (make sure it's in your PATH).
+Without `profile=`, it behaves exactly like the original `xmlrpc.client.ServerProxy`.
 
-To update (downloads latest from GitHub):
+There's also a simpler functional API:
 
-```bash
-./update.sh
+```python
+from odoo_xmlrpc_auth import connect
+
+execute = connect("customer1")
+tasks = execute("project.task", "search_read",
+                [[["project_id", "=", 5]]],
+                {"fields": ["name"], "limit": 10})
 ```
 
-To uninstall:
-
-```bash
-./uninstall.sh
-```
-
-### 2. Configure a profile
+## Configure a profile
 
 One file per Odoo instance, `chmod 600`:
 
@@ -82,11 +107,14 @@ CONF
 chmod 600 ~/.config/odoo-xmlrpc-auth/customer1.conf
 ```
 
+The tool refuses to run if the config directory or files are accessible by
+group or others (like `ssh` does with `~/.ssh/`).
+
 ## Security model
 
 | Data | Leaves your machine? |
 |---|---|
-| Odoo credentials | No — read by `odoo-xmlrpc-auth` locally from `~/.config/` |
+| Odoo credentials | No — read locally from `~/.config/` |
 | API call parameters | Yes — sent to Odoo via XML-RPC |
 | API results | Yes — returned from Odoo via XML-RPC |
 
@@ -95,5 +123,5 @@ only the queries go over the wire.
 
 ## Prerequisites
 
-- **python3** (uses only stdlib: `xmlrpc.client`, `configparser`, `json`, `argparse`)
+- **python3 >= 3.8** (uses only stdlib: `xmlrpc.client`, `configparser`, `json`, `argparse`)
 - No pip dependencies
