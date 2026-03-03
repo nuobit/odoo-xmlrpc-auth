@@ -21,6 +21,7 @@ import stat
 import sys
 import xmlrpc.client
 
+VERSION = "1.0.2"
 SECTION = "odoo"
 REQUIRED_KEYS = ("url", "db", "user", "password")
 
@@ -81,6 +82,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Odoo XML-RPC proxy — injects credentials transparently",
     )
+    parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     parser.add_argument(
         "--profile", required=True, help="profile name (matches <name>.conf)"
     )
