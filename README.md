@@ -77,17 +77,6 @@ proxy.execute_kw("project.task", "write",
 
 Without `profile=`, it behaves exactly like the original `xmlrpc.client.ServerProxy`.
 
-There's also a simpler functional API:
-
-```python
-from odoo_xmlrpc_auth import connect
-
-execute = connect("customer1")
-tasks = execute("project.task", "search_read",
-                [[["project_id", "=", 5]]],
-                {"fields": ["name"], "limit": 10})
-```
-
 ## Configure a profile
 
 One file per Odoo instance, `chmod 600`:

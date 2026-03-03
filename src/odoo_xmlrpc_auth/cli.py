@@ -4,8 +4,7 @@ import sys
 import xmlrpc.client
 
 from . import __version__
-from .client import ServerProxy
-from .config import AuthError, ConfigError
+from .client import AuthError, ConfigError, ServerProxy
 
 
 def die(msg):
