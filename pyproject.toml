@@ -7,7 +7,7 @@ name = "odoo-xmlrpc-auth"
 dynamic = ["version"]
 description = "Minimal CLI proxy and library for Odoo XML-RPC calls — injects credentials transparently"
 requires-python = ">=3.8"
-license = "MIT"
+license = "Apache-2.0"
 readme = "README.md"
 
 [project.scripts]

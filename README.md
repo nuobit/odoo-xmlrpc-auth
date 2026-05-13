@@ -114,3 +114,9 @@ only the queries go over the wire.
 
 - **python3 >= 3.8** (uses only stdlib: `xmlrpc.client`, `configparser`, `json`, `argparse`)
 - No pip dependencies
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+Copyright (c) 2026 NuoBiT Solutions, S.L.
