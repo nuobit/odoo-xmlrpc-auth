@@ -3,3 +3,19 @@ __pycache__/
 *.egg-info/
 .idea/
 .vscode/
+
+# AI agent operational metadata — NEVER push to a public repo.
+# The agent's workspace coincides with this git folder; these dirs hold
+# state pins, MCP config, conversation history, etc. which contain
+# internal context that must not leave the laptop.
+.ai/
+.claude/
+.codex/
+.gemini/
+.aider/
+.cursor/
+.continue/
+.zed/
+.windsurf/
+.copilot/
+.history/
